@@ -48,33 +48,31 @@ function MousePosition() {
   const [position, setPosition] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
-    if (typeof window !== undefined) {
+    if (typeof window !== "undefined") {
       function handleMove(e) {
-        const newPosition = { x: e.clientX, y: e.clientY };
-        if (
-          Math.abs(newPosition.x - position.x) > 5 || // En az 5 birim değişim olduğunda güncelle.
-          Math.abs(newPosition.y - position.y) > 5
-        ) {
-          setPosition(newPosition);
-          console.log("Updating state");
-        }
+        setPosition({ x: e.clientX, y: e.clientY });
+        console.log("Updating state");
       }
+      window.addEventListener("pointermove", handleMove);
+      return () => {
+        console.log("Unmounted");
+        window.removeEventListener("pointermove", handleMove);
+      };
     }
-
-    window.addEventListener("pointermove", handleMove);
-
-    return () => {
-      window.removeEventListener("pointermove", handleMove);
-    };
-  }, [position]);
+  }, []);
 
   return (
     <div className="space-y-5">
-      <div>
-        X position: <strong>{position.x.toFixed(2)}</strong>
-      </div>
-      <div>
-        Y position: <strong>{position.y.toFixed(2)}</strong>
+      <div
+        className="absolute bg-gray-600 border-2 rounded-md text-white p-5 opacity-50 border-gray-900 shadow-toolkit"
+        style={{ left: `${position.x + 20}px`, top: `${position.y + 20}px` }}
+      >
+        <div>
+          X position: <strong>{position.x.toFixed(2)}</strong>
+        </div>
+        <div>
+          Y position: <strong>{position.y.toFixed(2)}</strong>
+        </div>
       </div>
     </div>
   );
