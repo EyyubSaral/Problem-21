@@ -48,14 +48,16 @@ function MousePosition() {
   const [position, setPosition] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
-    function handleMove(e) {
-      const newPosition = { x: e.clientX, y: e.clientY };
-      if (
-        Math.abs(newPosition.x - position.x) > 5 || // En az 5 birim değişim olduğunda güncelle.
-        Math.abs(newPosition.y - position.y) > 5
-      ) {
-        setPosition(newPosition);
-        console.log("Updating state");
+    if (typeof window !== undefined) {
+      function handleMove(e) {
+        const newPosition = { x: e.clientX, y: e.clientY };
+        if (
+          Math.abs(newPosition.x - position.x) > 5 || // En az 5 birim değişim olduğunda güncelle.
+          Math.abs(newPosition.y - position.y) > 5
+        ) {
+          setPosition(newPosition);
+          console.log("Updating state");
+        }
       }
     }
 
