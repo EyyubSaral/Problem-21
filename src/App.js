@@ -1,7 +1,5 @@
 import { useEffect, useState, useRef } from "react";
 import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
-import dynamic from "next/dynamic";
-import { StaticRouter } from "react-router-dom/server";
 
 // Bileşenimiz mouse hareketlerini takip eder ve koordinatları ekrana yazdırır.
 // Bazı eksiklikler ve olası hatalar bulunuyor.
@@ -21,64 +19,55 @@ import { StaticRouter } from "react-router-dom/server";
 // - Tailwind CSS kullanılarak, mouse koordinatlarını ekranda bir tooltip efektiyle gösterecek stil ekleyin.
 // - Tailwind’in eklenti sistemi ile özel bir shadow-glow efekti tanımlayın ve nasıl eklendiğini açıklayın.
 
-// SSR'siz dinamik bileşen
-const MousePosition = dynamic(() => import("./MousePosition"), { ssr: false });
-
-export default function App({ location }) {
-  const isBrowser = typeof window !== "undefined";
-
+export default function App() {
   return (
     <div className="flex justify-center flex-col items-center py-8">
       <h1 className="text-2xl font-bold pb-4">🐭</h1>
-      {isBrowser ? (
-        <BrowserRouter>
-          <nav className="flex justify-center max-w-sm p-4 pb-8 space-x-4">
-            <Link className="underline" to="/">
-              Home
-            </Link>
-            <Link className="underline" to="/about">
-              About
-            </Link>
-          </nav>
-          <Routes>
-            <Route path="/" element={<MousePosition />} />
-            <Route
-              path="/about"
-              element={<h1>Mouse&apos;unuzu takip edin!</h1>}
-            />
-          </Routes>
-        </BrowserRouter>
-      ) : (
-        <StaticRouter location={location}>
-          <Routes>
-            <Route
-              path="/about"
-              element={<h1>Bu sadece sunucuda çalışıyor!</h1>}
-            />
-          </Routes>
-        </StaticRouter>
-      )}
+      <BrowserRouter>
+        <nav className="flex justify-center max-w-sm p-4 pb-8 space-x-4">
+          <Link className="underline" to="/">
+            Home
+          </Link>
+          <Link className="underline" to="/about">
+            About
+          </Link>
+        </nav>
+        <Routes>
+          <Route path="/" element={<MousePosition />} />
+          <Route
+            path="/about"
+            element={<h1>Mouse&apos;unuzu takip edin!</h1>}
+          />
+        </Routes>
+      </BrowserRouter>
     </div>
   );
 }
 
-// MousePosition bileşeni (dinamik olarak yüklenir)
 function MousePosition() {
   const [position, setPosition] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
-    const handleMove = (e) => {
-      setPosition({ x: e.clientX, y: e.clientY });
-      console.log("Updating state");
-    };
+    // SSR için kontrol ekleniyor
+    if (typeof window !== "undefined") {
+      function handleMove(e) {
+        setPosition({ x: e.clientX, y: e.clientY });
+        console.log("Updating state");
+      }
 
-    window.addEventListener("pointermove", handleMove);
+      window.addEventListener("pointermove", handleMove);
 
-    return () => {
-      console.log("Unmounted");
-      window.removeEventListener("pointermove", handleMove);
-    };
+      return () => {
+        console.log("Unmounted");
+        window.removeEventListener("pointermove", handleMove);
+      };
+    }
   }, []);
+
+  // SSR ortamında bileşen render etmiyor
+  if (typeof window === "undefined") {
+    return null;
+  }
 
   return (
     <div className="space-y-5">
