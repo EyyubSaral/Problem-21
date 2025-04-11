@@ -20,6 +20,10 @@ import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
 // - Tailwind’in eklenti sistemi ile özel bir shadow-glow efekti tanımlayın ve nasıl eklendiğini açıklayın.
 
 export default function App() {
+  if (typeof window === "undefined") {
+    return <div>Bu içerik yalnızca tarayıcıda çalışır.</div>;
+  }
+
   return (
     <div className="flex justify-center flex-col items-center py-8">
       <h1 className="text-2xl font-bold pb-4">🐭</h1>
@@ -49,7 +53,7 @@ function MousePosition() {
 
   useEffect(() => {
     // SSR için kontrol ekleniyor
-    if (typeof window !== "undefined") {
+    if (typeof window !== "undefined" && typeof document !== undefined) {
       function handleMove(e) {
         setPosition({ x: e.clientX, y: e.clientY });
         console.log("Updating state");
@@ -65,7 +69,7 @@ function MousePosition() {
   }, []);
 
   // SSR ortamında bileşen render etmiyor
-  if (typeof window === "undefined") {
+  if (typeof window === "undefined" && typeof document === undefined) {
     return null;
   }
 
